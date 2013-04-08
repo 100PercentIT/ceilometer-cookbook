@@ -92,22 +92,37 @@ end
 nova_setup_info = get_settings_by_role("nova-setup", "nova")
 
 # nova db
-nova_db_info = get_access_endpoint("mysql-master", "mysql", "db")
-nova_db_host = nova_db_info["host"]
-nova_db_port = nova_db_info["port"]
-nova_db_user = node["nova"]["db"]["username"]
-nova_db_password = nova_setup_info["db"]["password"]
-nova_db_name = node["nova"]["db"]["name"] || 'nova'
-nova_db_uri = URI::Generic.build({:host => nova_db_host,
-                             :port => nova_db_port,
-                             :scheme => 'mysql',
-                             :userinfo => "#{nova_db_user}:#{nova_db_password}",
-                             :path => "/#{nova_db_name}"
-                            })
+if node['db']['provider'] == 'mysql'
+  nova_db_info = get_access_endpoint("mysql-master", "mysql", "db")
+  nova_db_host = nova_db_info["host"]
+  nova_db_port = nova_db_info["port"]
+  nova_db_user = node["nova"]["db"]["username"]
+  nova_db_password = nova_setup_info["db"]["password"]
+  nova_db_name = node["nova"]["db"]["name"] || 'nova'
+  nova_db_uri = URI::Generic.build({:host => nova_db_host,
+                               :port => nova_db_port,
+                               :scheme => 'mysql',
+                               :userinfo => "#{nova_db_user}:#{nova_db_password}",
+                               :path => "/#{nova_db_name}"
+                              })
+end
+if node['db']['provider'] == 'postgresql'
+  nova_db_info = get_access_endpoint("postgresql-master", "postgresql", "db")
+  nova_db_host = nova_db_info["host"]
+  nova_db_port = nova_db_info["port"]
+  nova_db_user = node["nova"]["db"]["username"]
+  nova_db_password = nova_setup_info["db"]["password"]
+  nova_db_name = node["nova"]["db"]["name"] || 'nova'
+  nova_db_uri = URI::Generic.build({:host => nova_db_host,
+                               :port => nova_db_port,
+                               :scheme => 'postgresql',
+                               :userinfo => "#{nova_db_user}:#{nova_db_password}",
+                               :path => "/#{nova_db_name}"
+                              })
+end
 
-# ceilometer db
 db_host = node["ceilometer"]["db"]["host"]
-db_scheme = node["ceilometer"]["db"]["scheme"]
+db_scheme = node['db']['provider']
 unless db_host
   db_host = db_scheme == 'mongodb' ? 'localhost' : nova_db_host
 end

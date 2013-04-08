@@ -49,21 +49,21 @@ else
   # need to implement
 end
 
-# db migration
+## db migration
 ceilometer_conf = node["ceilometer"]["conf"]
 install_dir = node["ceilometer"]["install_dir"]
-bash "migration" do
-  if File.exists?("#{install_dir}/tools/dbsync")
-    break if db_scheme == 'mongodb'
-    code <<-EOF
-      #{install_dir}/tools/dbsync --config-file=#{ceilometer_conf}
-    EOF
-  else
-    code <<-EOF
-      ceilometer-dbsync --config-file=#{ceilometer_conf}
-    EOF
-  end
-end
+#bash "migration" do
+#  if File.exists?("#{install_dir}/tools/dbsync")
+#    break if db_scheme == 'mongodb'
+#    code <<-EOF
+#      #{install_dir}/tools/dbsync --config-file=#{ceilometer_conf}
+#    EOF
+#  else
+#    code <<-EOF
+#      ceilometer-dbsync --config-file=#{ceilometer_conf}
+#    EOF
+#  end
+#end
 
 bindir = '/usr/local/bin'
 conf_switch = "--config-file #{ceilometer_conf}"

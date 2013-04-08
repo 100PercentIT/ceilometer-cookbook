@@ -19,17 +19,22 @@
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
-db_scheme = node["ceilometer"]["db"]["scheme"]
-
 # Allow for using a well known db password
 node.set_unless["ceilometer"]["db"]["password"] = node["developer_mode"] ? 'ceilometer' : secure_password
 
-if db_scheme == 'mysql'
+if node['db']['provider'] == 'mysql'
   include_recipe "mysql::client"
   include_recipe "mysql::ruby"
 
-  # osops method only supports mysql
-  create_db_and_user(node["ceilometer"]["db"]["scheme"],
+  create_db_and_user("mysql",
+                     node["ceilometer"]["db"]["name"],
+                     node["ceilometer"]["db"]["username"],
+                     node["ceilometer"]["db"]["password"])
+end
+if node['db']['provider'] == 'postgresql'
+  include_recipe "postgresql::client"
+  include_recipe "postgresql::ruby"
+  create_db_and_user("postgresql",
                      node["ceilometer"]["db"]["name"],
                      node["ceilometer"]["db"]["username"],
                      node["ceilometer"]["db"]["password"])
